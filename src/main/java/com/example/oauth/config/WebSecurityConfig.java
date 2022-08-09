@@ -62,7 +62,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .authorizeRequests()
             .antMatchers("/auth/**").anonymous()
-            //"/users" added because I don't know what authorization through Google should return
+            // TODO: 09.08.2022 добавил отображение юзеров т.к. не знаю что должна возвращать авторизация через гугл
             .antMatchers("/oauth2/**", "/users").permitAll()
             .anyRequest().authenticated()
             .and()
@@ -81,7 +81,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
 
                     userService.processOAuthPostLogin(oauthUser.getAttributes());
-                    //"/users" added because I don't know what authorization through Google should return
+                    // TODO: 09.08.2022 тот же юзер изза незнанки что возвращает авторизация через гугл
                     response.sendRedirect("/users");
                 }
             });

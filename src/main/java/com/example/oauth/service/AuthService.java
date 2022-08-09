@@ -35,26 +35,28 @@ public class AuthService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    public Map<String, String> login(AuthRequest requestDto) {
-        String email = requestDto.getEmail();
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User with username: " + email + ", not found"));
-        if (!checkAuthentication(email)) {
-            throw new AuthException("User not activated");
-        }
+    // TODO: 09.08.2022 убрать логику из контроллера перенести в сервис
+
+//    public Map<String, String> login(AuthRequest requestDto) {
+//        String email = requestDto.getEmail();
+//        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User with username: " + email + ", not found"));
+//        if (!checkAuthentication(email)) {
+//            throw new AuthException("User not activated");
+//        }
 //        if (user.getStatus().equals(Status.DELETED)) {
 //            throw new CustomException(
 //                "You cannot log in with this username, because your account has been deleted");
 //        }
-        try {
-            String token = jwtTokenUtil.generateAccessToken(user);
-            Map<String, String> response = new HashMap<>();
-            response.put("email", email);
-            response.put("token", token);
-            return response;
-        } catch (Exception e) {
-            throw new ValidationException("Invalid username or password");
-        }
-    }
+//        try {
+//            String token = jwtTokenUtil.generateAccessToken(user);
+//            Map<String, String> response = new HashMap<>();
+//            response.put("email", email);
+//            response.put("token", token);
+//            return response;
+//        } catch (Exception e) {
+//            throw new ValidationException("Invalid username or password");
+//        }
+//    }
 
     public User userRegistration(User user) {
         User userFromDb = userRepository.findUserByEmail(user.getEmail()).orElse(null);
@@ -104,6 +106,8 @@ public class AuthService {
     public boolean checkUserByEmail(String email) {
         return userRepository.findUserByEmail(email).isPresent();
     }
+
+// TODO: 09.08.2022 нужно добавить апдейт
 
 //    public User update(Principal principal, User user) {
 //        try {

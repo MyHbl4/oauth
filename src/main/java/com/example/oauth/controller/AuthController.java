@@ -42,6 +42,7 @@ public class AuthController {
             .body(new UserDTO(createdUser.getId(), createdUser.getEmail()));
     }
 
+    // TODO: 09.08.2022 не выдаёт ошибку при не верном пароле
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid AuthRequest request) {
         if (!authService.checkUserByEmail(request.getEmail())) {
