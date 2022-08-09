@@ -78,12 +78,12 @@ public class AuthService {
 
     public boolean activateUser(String email) {
         User user = userRepository.findUserByEmail(email).orElse(null);
-        if(user == null) {
-            return false;
+        if(user == null || user.isEnabled()) {
+            return true;
         }
         user.setEnabled(true);
         userRepository.save(user);
-        return true;
+        return false;
     }
 
     public boolean checkAuthentication(String email) {

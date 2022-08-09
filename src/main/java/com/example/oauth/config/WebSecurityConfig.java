@@ -4,7 +4,6 @@ import com.example.oauth.security.CustomOAuth2User;
 import com.example.oauth.security.CustomOAuth2UserService;
 import com.example.oauth.service.UserDetailsServiceImpl;
 import com.example.oauth.service.UserService;
-import com.sun.xml.bind.v2.TODO;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -62,8 +61,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .authorizeRequests()
             .antMatchers("/auth/**").anonymous()
-            .antMatchers("/oauth2/**", "/users")
-            .permitAll() //"/users" added because I don't know what authorization through Google should return
+            //"/users" added because I don't know what authorization through Google should return
+            .antMatchers("/oauth2/**", "/users").permitAll()
             .anyRequest().authenticated()
             .and()
             .oauth2Login()
@@ -81,9 +80,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
 
                     userService.processOAuthPostLogin(oauthUser.getAttributes());
-
-                    response.sendRedirect(
-                        "/users"); //"/users" added because I don't know what authorization through Google should return
+                    //"/users" added because I don't know what authorization through Google should return
+                    response.sendRedirect("/users");
                 }
             })
             .and()
