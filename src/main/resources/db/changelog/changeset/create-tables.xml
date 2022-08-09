@@ -1,0 +1,84 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+
+  <changeSet id="1" author="aleksandr.petushenko">
+    <createTable tableName="users">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+
+      <column name="email" type="VARCHAR(100)">
+        <constraints unique="true" nullable="false"/>
+      </column>
+
+      <column name="username" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+
+      <column name="password" type="VARCHAR(100)">
+      </column>
+
+      <column name="enabled" type="boolean">
+      </column>
+
+      <column name="provider" type="VARCHAR(15)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="2" author="aleksandr.petushenko">
+    <createTable tableName="roles">
+      <column name="id" type="BIGINT" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+
+      <column name="name" type="VARCHAR(100)">
+        <constraints nullable="false" unique="true"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="3" author="aleksandr.petushenko">
+    <createTable tableName="users_roles">
+      <column name="user_id" type="BIGINT">
+      </column>
+
+      <column name="role_id" type="BIGINT">
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="4" author="aleksandr.petushenko">
+    <addForeignKeyConstraint baseColumnNames="user_id"
+      baseTableName="users_roles"
+      constraintName="fk_user_roles_user"
+      onDelete="CASCADE"
+      onUpdate="RESTRICT"
+      referencedColumnNames="id"
+      referencedTableName="users"/>
+  </changeSet>
+
+  <changeSet id="5" author="aleksandr.petushenko">
+    <addForeignKeyConstraint baseColumnNames="role_id"
+      baseTableName="users_roles"
+      constraintName="fk_user_roles_roles"
+      onDelete="CASCADE"
+      onUpdate="RESTRICT"
+      referencedColumnNames="id"
+      referencedTableName="roles"/>
+  </changeSet>
+
+  <changeSet id="6" author="aleksandr.petushenko">
+    <insert tableName="roles">
+      <column name="name" value="ROLE_USER"/>
+    </insert>
+
+    <insert tableName="roles">
+      <column name="name" value="ROLE_ADMIN"/>
+    </insert>
+  </changeSet>
+</databaseChangeLog>

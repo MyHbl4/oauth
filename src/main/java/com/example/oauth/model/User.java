@@ -27,10 +27,8 @@ public class User {
     private String username;
     private String password;
     private boolean enabled;
-
     @Enumerated(EnumType.STRING)
     private Provider provider;
-
     @ManyToMany
     @JoinTable(
         name = "users_roles",
@@ -40,17 +38,6 @@ public class User {
     private Set<Role> roles = new HashSet<>();
 
     public User() {
-    }
-
-    public User(Long id, String email, String password) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-    }
-
-    public User(Long id, String email) {
-        this.id = id;
-        this.email = email;
     }
 
     public Long getId() {

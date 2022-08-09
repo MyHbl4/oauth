@@ -1,23 +1,33 @@
 package com.example.oauth.controller;
 
+import com.example.oauth.dto.UserDTO;
 import com.example.oauth.model.User;
 import com.example.oauth.service.AuthService;
+import java.net.URI;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
     AuthService authService;
 
-    @PostMapping("/register")
-    public User registerUser(@RequestBody @Valid User user) {
-        return authService.save(user);
+    @PutMapping("/register")
+    public ResponseEntity<?> createUser(@RequestBody @Valid User user) {
+        User createdUser = authService.userRegistration(user);
+        URI uri = URI.create("/users/" + createdUser.getId());
+
+        return ResponseEntity.created(uri)
+            .body(new UserDTO(createdUser.getId(), createdUser.getEmail()));
     }
 //
 //    @Autowired
@@ -57,29 +67,14 @@ public class AuthController {
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 //        }
 //    }
-//
-//    /**
-//     * PUT /users/ : create user request for any user. need do this method accessible for not
-//     * authenticated users
-//     *
-//     * @return ResponseEntity with status 201 (Created) and body {@link UserDTO}
-//     */
-//    @PutMapping("/register")
-//    public ResponseEntity<?> createUser(@RequestBody @Valid User user) {
-//        User createdUser = userService.save(user);
-//        URI uri = URI.create("/users/" + createdUser.getId());
-//
-//        return ResponseEntity.created(uri)
-//            .body(new UserDTO(createdUser.getId(), createdUser.getEmail()));
-//    }
-//
-//    @GetMapping(path = "/activate/{code}")
-//    public ResponseEntity<?> activate(@PathVariable String code) {
-//        boolean isActivated = userService.activateUser(code);
-//        if (isActivated) {
-//            return ResponseEntity.ok().body(new MessageResponse("User successfully activated"));
-//        } else {
-//            return ResponseEntity.ok().body(new MessageResponse("Activation failed"));
-//        }
-//    }
+
+    @GetMapping(path = "/activate/{email}")
+    public ResponseEntity<?> activate(@PathVariable String email) {
+        boolean isActivated = authService.activateUser(email);
+        if (isActivated) {
+            return ResponseEntity.ok().body(new MessageResponse("Activation failed"));
+        } else {
+            return ResponseEntity.ok().body(new MessageResponse("User successfully activated"));
+        }
+    }
 }

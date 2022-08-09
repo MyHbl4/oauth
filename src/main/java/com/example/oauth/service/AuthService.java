@@ -8,6 +8,7 @@ import com.example.oauth.repository.RoleRepository;
 import com.example.oauth.repository.UserRepository;
 import java.util.HashSet;
 import java.util.Set;
+import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,21 +22,23 @@ public class AuthService {
     private RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private MailSender mailSender;
 
-//    public Map<String, String> login(AuthenticationRequestDto requestDto) {
-//        String username = requestDto.getUsername();
-//        if (userRepository.findByUsername(username) == null) {
-//            throw new NotFoundException("User with username: " + username + ", not found");
+//    public Map<String, String> login(AuthRequest requestDto) {
+//        String email = requestDto.getEmail();
+//        if (userRepository.findUserByEmail(email).isEmpty()) {
+//            throw new NotFoundException("User with username: " + email + ", not found");
 //        }
-//        User user = userRepository.findByUsername(username);
+//        User user = userRepository.findUserByEmail(email);
 //        if (user.getStatus().equals(Status.DELETED)) {
 //            throw new CustomException(
 //                "You cannot log in with this username, because your account has been deleted");
 //        }
 //        try {
-//            String token = jwtTokenProvider.createToken(username, user.getRoles());
+//            String token = jwtTokenProvider.createToken(email, user.getRoles());
 //            Map<String, String> response = new HashMap<>();
-//            response.put("username", username);
+//            response.put("username", email);
 //            response.put("token", token);
 //            return response;
 //        } catch (Exception e) {
@@ -43,7 +46,7 @@ public class AuthService {
 //        }
 //    }
 
-    public User save(User user) {
+    public User userRegistration(User user) {
         User userFromDb = userRepository.findUserByEmail(user.getEmail()).orElse(null);
         if (userFromDb != null) {
             throw new ValidationException("User already registered");
@@ -54,22 +57,42 @@ public class AuthService {
         user.setRoles(roles);
         String rawPassword = user.getPassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);
+        user.setUsername(user.getEmail());
         user.setPassword(encodedPassword);
         user.setEnabled(false);
         user.setProvider(Provider.LOCAL);
 
         userRepository.save(user);
-//
-//        if (StringUtils.isNotEmpty(user.getEmail())) {
-//            String message = String.format(
-//                "Hello, you have registered on the Shire website \n" +
-//                    "Please visit next link: http://localhost:9000/auth/activate/%s",
-//                user.getActivationCode()
-//            );
-//            mailSender.send(user.getEmail(), "Activation Code", message);
-//        }
+
+        if (StringUtils.isNotEmpty(user.getEmail())) {
+            String message = String.format(
+                "Hello, you have registered on the Shire website \n" +
+                    "Please visit next link: http://localhost:9000/auth/activate/%s",
+                user.getEmail()
+            );
+            mailSender.send(user.getEmail(), "Activation account", message);
+        }
 
         return user;
+    }
+
+    public boolean activateUser(String email) {
+        User user = userRepository.findUserByEmail(email).orElse(null);
+        if(user == null) {
+            return false;
+        }
+        user.setEnabled(true);
+        userRepository.save(user);
+        return true;
+    }
+
+    public boolean checkAuthentication(String email) {
+        User userFromDB = userRepository.findUserByEmail(email).orElse(null);
+        return userFromDB != null && userFromDB.isEnabled();
+    }
+
+    public boolean checkUserByEmail(String email) {
+        return userRepository.findUserByEmail(email).isPresent();
     }
 
 //    public User update(Principal principal, User user) {
