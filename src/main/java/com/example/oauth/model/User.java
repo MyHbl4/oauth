@@ -88,6 +88,10 @@ public class User {
         this.roles = roles;
     }
 
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+
     public Provider getProvider() {
         return provider;
     }

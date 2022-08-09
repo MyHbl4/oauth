@@ -1,18 +1,18 @@
 package com.example.oauth.config;
 
-import com.example.oauth.security.CustomOAuth2User;
-import com.example.oauth.security.CustomOAuth2UserService;
+import com.example.oauth.security.JwtTokenFilter;
+import com.example.oauth.security.oauth2.CustomOAuth2User;
+import com.example.oauth.security.oauth2.CustomOAuth2UserService;
 import com.example.oauth.service.UserDetailsServiceImpl;
 import com.example.oauth.service.UserService;
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -83,12 +84,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     //"/users" added because I don't know what authorization through Google should return
                     response.sendRedirect("/users");
                 }
-            })
-            .and()
-            .logout().logoutSuccessUrl("/").permitAll()
-            .and()
-            .exceptionHandling().accessDeniedPage("/403")
-        ;
+            });
+
+        http.exceptionHandling()
+            .authenticationEntryPoint(
+                (request, response, ex) -> response.sendError(
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    ex.getMessage()
+                )
+            );
+
+        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Autowired
@@ -96,4 +102,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UserService userService;
+
+    @Override
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Autowired
+    private JwtTokenFilter jwtTokenFilter;
 }
