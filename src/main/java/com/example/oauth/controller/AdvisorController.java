@@ -7,7 +7,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.example.oauth.exception.NotFoundException;
 import com.example.oauth.exception.ValidationException;
-import javax.security.auth.message.AuthException;
+import com.example.oauth.exception.AuthException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

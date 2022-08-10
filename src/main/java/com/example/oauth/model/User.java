@@ -1,5 +1,6 @@
 package com.example.oauth.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ public class User {
     private Long id;
     private String email;
     private String username;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     private boolean enabled;
     @Enumerated(EnumType.STRING)

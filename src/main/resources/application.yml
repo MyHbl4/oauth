@@ -43,3 +43,13 @@ spring:
             scope:
               - email
               - profile
+  #logging
+logging:
+  file:
+    name: logs/application-debug.log
+  pattern:
+    console: "%d{yyyy-MMM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    ROOT: WARN
+    com.example.oauth: DEBUG

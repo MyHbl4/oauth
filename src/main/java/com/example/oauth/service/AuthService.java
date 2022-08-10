@@ -1,7 +1,6 @@
 package com.example.oauth.service;
 
 import com.example.oauth.controller.AuthRequest;
-import com.example.oauth.controller.MessageResponse;
 import com.example.oauth.exception.AuthException;
 import com.example.oauth.exception.NotFoundException;
 import com.example.oauth.exception.ValidationException;
@@ -15,11 +14,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.validation.Valid;
 import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 public class AuthService {
@@ -34,29 +37,36 @@ public class AuthService {
     private MailSender mailSender;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    AuthenticationManager authManager;
 
-    // TODO: 09.08.2022 убрать логику из контроллера перенести в сервис
+    public Map<String, String> login(@RequestBody @Valid AuthRequest request) {
+        String email = request.getEmail();
+        if (!checkUserByEmail(email)) {
+            throw new NotFoundException("User not found");
+        }
+        if (!checkAuthentication(email)) {
+            throw new AuthException("User not activated");
+        }
+        try {
+            Authentication authentication = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    request.getEmail(), request.getPassword())
+            );
 
-//    public Map<String, String> login(AuthRequest requestDto) {
-//        String email = requestDto.getEmail();
-//        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new NotFoundException("User with username: " + email + ", not found"));
-//        if (!checkAuthentication(email)) {
-//            throw new AuthException("User not activated");
-//        }
-//        if (user.getStatus().equals(Status.DELETED)) {
-//            throw new CustomException(
-//                "You cannot log in with this username, because your account has been deleted");
-//        }
-//        try {
-//            String token = jwtTokenUtil.generateAccessToken(user);
-//            Map<String, String> response = new HashMap<>();
-//            response.put("email", email);
-//            response.put("token", token);
-//            return response;
-//        } catch (Exception e) {
-//            throw new ValidationException("Invalid username or password");
-//        }
-//    }
+            MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();
+            User user = userDetails.getUser();
+            String accessToken = jwtTokenUtil.generateAccessToken(user);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("email", email);
+            response.put("token", accessToken);
+            return response;
+
+        } catch (Exception e) {
+            throw new ValidationException("Invalid username or password");
+        }
+    }
 
     public User userRegistration(User user) {
         User userFromDb = userRepository.findUserByEmail(user.getEmail()).orElse(null);
@@ -88,14 +98,14 @@ public class AuthService {
         return user;
     }
 
-    public boolean activateUser(String email) {
+    public String activateUser(String email) {
         User user = userRepository.findUserByEmail(email).orElse(null);
-        if(user == null || user.isEnabled()) {
-            return true;
+        if (user == null || user.isEnabled()) {
+            return "Activation failed";
         }
         user.setEnabled(true);
         userRepository.save(user);
-        return false;
+        return "User successfully activated";
     }
 
     public boolean checkAuthentication(String email) {
@@ -106,23 +116,4 @@ public class AuthService {
     public boolean checkUserByEmail(String email) {
         return userRepository.findUserByEmail(email).isPresent();
     }
-
-// TODO: 09.08.2022 нужно добавить апдейт
-
-//    public User update(Principal principal, User user) {
-//        try {
-//            User oldUser = userRepository.findByUsername(principal.getName());
-//            oldUser.setEmail(user.getEmail());
-//            oldUser.setPassword(passwordEncoder.encode(user.getPassword()));
-//            oldUser.setFirstName(user.getFirstName());
-//            oldUser.setLastName(user.getLastName());
-//            oldUser.setStatus(user.getStatus());
-//            User updatedUser = userRepository.save(oldUser);
-//            log.info("update - update user id: {} successfully updated", updatedUser.getId());
-//
-//            return updatedUser;
-//        } catch (Exception e) {
-//            throw new ValidationException(COULD_NOT_UPDATED.value);
-//        }
-//    }
 }
