@@ -2,6 +2,7 @@ package com.example.oauth.controller;
 
 import com.example.oauth.model.User;
 import com.example.oauth.service.UserService;
+import io.swagger.annotations.Api;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @Slf4j
+@Api(tags = "Users")
 public class UserController {
 
     @Autowired

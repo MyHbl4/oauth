@@ -1,6 +1,7 @@
 package com.example.oauth.service;
 
 import com.example.oauth.controller.AuthRequest;
+import com.example.oauth.controller.AuthResponse;
 import com.example.oauth.exception.AuthException;
 import com.example.oauth.exception.NotFoundException;
 import com.example.oauth.exception.ValidationException;
@@ -40,7 +41,7 @@ public class AuthService {
     @Autowired
     AuthenticationManager authManager;
 
-    public Map<String, String> login(@RequestBody @Valid AuthRequest request) {
+    public AuthResponse login(@RequestBody @Valid AuthRequest request) {
         String email = request.getEmail();
         if (!checkUserByEmail(email)) {
             throw new NotFoundException("User not found");
@@ -58,9 +59,9 @@ public class AuthService {
             User user = userDetails.getUser();
             String accessToken = jwtTokenUtil.generateAccessToken(user);
 
-            Map<String, String> response = new HashMap<>();
-            response.put("email", email);
-            response.put("token", accessToken);
+            AuthResponse response = new AuthResponse();
+            response.setEmail(email);
+            response.setAccessToken(accessToken);
             return response;
 
         } catch (Exception e) {

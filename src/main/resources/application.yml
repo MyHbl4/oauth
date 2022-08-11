@@ -43,6 +43,10 @@ spring:
             scope:
               - email
               - profile
+  #utils
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   #logging
 logging:
   file:

@@ -1,8 +1,10 @@
 package com.example.oauth.controller;
 
-import com.example.oauth.dto.UserDTO;
+import com.example.oauth.controller.dto.NewUserDTO;
+import com.example.oauth.controller.dto.UserDTO;
 import com.example.oauth.model.User;
 import com.example.oauth.service.AuthService;
+import io.swagger.annotations.Api;
 import java.net.URI;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @Slf4j
+@Api(tags = "Authentication")
 public class AuthController {
 
     @Autowired
@@ -34,9 +37,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody AuthRequest requestDto) {
+    public AuthResponse login(@RequestBody AuthRequest requestDto) {
         log.info("login - login user with email: {}", requestDto.getEmail());
-        return ResponseEntity.ok(authService.login(requestDto));
+        return authService.login(requestDto);
     }
 
     @GetMapping(path = "/activate/{email}")
