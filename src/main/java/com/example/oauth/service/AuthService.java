@@ -1,7 +1,7 @@
 package com.example.oauth.service;
 
-import com.example.oauth.controller.AuthRequest;
-import com.example.oauth.controller.AuthResponse;
+import com.example.oauth.controller.dto.AuthRequest;
+import com.example.oauth.controller.dto.AuthResponse;
 import com.example.oauth.exception.AuthException;
 import com.example.oauth.exception.NotFoundException;
 import com.example.oauth.exception.ValidationException;
@@ -11,11 +11,8 @@ import com.example.oauth.model.User;
 import com.example.oauth.repository.RoleRepository;
 import com.example.oauth.repository.UserRepository;
 import com.example.oauth.security.JwtTokenUtil;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import javax.validation.Valid;
 import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +20,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
 public class AuthService {
@@ -41,7 +37,7 @@ public class AuthService {
     @Autowired
     AuthenticationManager authManager;
 
-    public AuthResponse login(@RequestBody @Valid AuthRequest request) {
+    public AuthResponse login(AuthRequest request) {
         String email = request.getEmail();
         if (!checkUserByEmail(email)) {
             throw new NotFoundException("User not found");

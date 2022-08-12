@@ -42,12 +42,12 @@ public class UserService {
             });
     }
 
-    public User getUser(Long id) {
-        return userRepository.findById(id)
+    public User findUserById(Long id) {
+        return userRepository.findUserById(id)
             .orElseThrow(() -> new NotFoundException("User with id " + id + " does not exist."));
     }
 
-    public List<User> getUsers() {
+    public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 

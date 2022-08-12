@@ -1,5 +1,7 @@
 package com.example.oauth.controller;
 
+import com.example.oauth.controller.dto.UserDTO;
+import com.example.oauth.mapper.UserMapper;
 import com.example.oauth.model.User;
 import com.example.oauth.service.UserService;
 import io.swagger.annotations.Api;
@@ -21,14 +23,22 @@ public class UserController {
     UserService userService;
 
     @GetMapping()
-    public List<User> getUsers() {
+    public List<UserDTO> findAllUsers() {
         log.info("getUsers - get all users");
-        return userService.getUsers();
+        return userService.findAllUsers().stream().map(UserMapper.INSTANCE::toUserDtoFromUser).toList();
     }
 
+//    @GetMapping("/{id}")
+//    public User findUserById(@PathVariable Long id) {
+//        log.info("findUserById - get user with id: {}", id);
+//        return userService.getUser(id);
+//    }
+
     @GetMapping("/{id}")
-    public User findUserById(@PathVariable Long id) {
+    public UserDTO findUserById(@PathVariable Long id) {
         log.info("findUserById - get user with id: {}", id);
-        return userService.getUser(id);
+        User user = userService.findUserById(id);
+        return UserMapper.INSTANCE.toUserDtoFromUser(user);
     }
+
 }

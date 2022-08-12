@@ -1,11 +1,14 @@
 package com.example.oauth.controller;
 
-import com.example.oauth.controller.dto.NewUserDTO;
-import com.example.oauth.controller.dto.UserDTO;
+import com.example.oauth.controller.dto.AuthRequest;
+import com.example.oauth.controller.dto.AuthResponse;
+import com.example.oauth.controller.dto.MessageResponse;
+import com.example.oauth.controller.dto.UserNewDTO;
+import com.example.oauth.controller.dto.UserShortDTO;
+import com.example.oauth.mapper.UserMapper;
 import com.example.oauth.model.User;
 import com.example.oauth.service.AuthService;
 import io.swagger.annotations.Api;
-import java.net.URI;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +31,10 @@ public class AuthController {
     AuthService authService;
 
     @PutMapping("/register")
-    public ResponseEntity<?> createUser(@RequestBody @Valid User user) {
+    public UserShortDTO createUser(@RequestBody @Valid UserNewDTO user) {
         log.info("createUser - User created with email: {}", user.getEmail());
-        User createdUser = authService.userRegistration(user);
-        URI uri = URI.create("/users/" + createdUser.getId());
-        return ResponseEntity.created(uri)
-            .body(new UserDTO(createdUser.getId(), createdUser.getEmail()));
+        User createdUser = authService.userRegistration(UserMapper.INSTANCE.toUserFromUserNewDto(user));
+        return UserMapper.INSTANCE.toUserShortDtoFromUser(createdUser);
     }
 
     @PostMapping("/login")

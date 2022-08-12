@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+import com.example.oauth.controller.dto.ErrorResponse;
 import com.example.oauth.exception.NotFoundException;
 import com.example.oauth.exception.ValidationException;
 import com.example.oauth.exception.AuthException;
